@@ -1,0 +1,6 @@
+github.com/gocarina/gocsv v0.0.0-20190919154618-09be0c8175b6 h1:0V0L+jfqJCJlDdKx9E1A0RxazUudPe7g6844Qlrm6l4=
+github.com/gocarina/gocsv v0.0.0-20190919154618-09be0c8175b6/go.mod h1:/oj50ZdPq/cUjA02lMZhijk5kR31SEydKyqah1OgBuo=
+github.com/imroc/req v0.2.4 h1:8XbvaQpERLAJV6as/cB186DtH5f0m5zAOtHEaTQ4ac0=
+github.com/imroc/req v0.2.4/go.mod h1:J9FsaNHDTIVyW/b5r6/Df5qKEEEq2WzZKIgKSajd1AE=
+github.com/joho/godotenv v1.3.0 h1:Zjp+RcGpHhGlrMbJzXTrZZPrWj+1vfm90La1wgB6Bhc=
+github.com/joho/godotenv v1.3.0/go.mod h1:7hK45KPybAkOC6peb+G5yklZfMxEjkZhHbwpqxOKXbg=

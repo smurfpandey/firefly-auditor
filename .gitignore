@@ -1,9 +1,13 @@
+# Environment file
+.env
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
+firefly-auditor
 
 # Test binary, build with `go test -c`
 *.test
