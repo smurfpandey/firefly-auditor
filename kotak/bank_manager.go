@@ -1,4 +1,4 @@
-package main
+package kotak
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/gocarina/gocsv"
 )
 
-type KotakTransaction struct {
+type Transaction struct {
 	SlNo    int     `csv:"Sl. No."` // .csv column headers
 	Date    string  `csv:"Date"`
 	Amount  float32 `csv:"Amount"`
@@ -17,7 +17,7 @@ type KotakTransaction struct {
 }
 
 func ReadCSV(filePath string) interface{} {
-	transactions := []*KotakTransaction{}
+	transactions := []*Transaction{}
 
 	in, err := os.Open(filePath)
 	if err != nil {
