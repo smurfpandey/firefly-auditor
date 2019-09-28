@@ -7,9 +7,17 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+
+	"github.com/smurfpandey/firefly-auditor/accounts/kotak"
 	"github.com/smurfpandey/firefly-auditor/firefly"
-	"github.com/smurfpandey/firefly-auditor/kotak"
 )
+
+type Transaction struct {
+	Date    string
+	Amount  float32
+	Type    string
+	Balance float32
+}
 
 func exitWithMessage(message string) {
 	fmt.Println("Error:", message)
@@ -28,18 +36,27 @@ func main() {
 	firefly.API_BASE_URL = os.Getenv("FIREFLY_API_BASE_URL")
 
 	// Read command line arguments
-	transactionFile := flag.String("transactions", "", "Path to the file with list of transactions")
-	accountName := flag.String("account", "", "Name of asset account in Firefly")
+	ptrTransactionFile := flag.String("transactions", "", "Path to the file with list of transactions")
+	ptrAccountName := flag.String("account", "", "Name of asset account in Firefly")
 	flag.Parse()
 
 	// Read file with help of bank manager
-	kotak.ReadCSV(*transactionFile)
+	transactionFile := *ptrTransactionFile
+	transactions := kotak.ReadTransactions(transactionFile)
 
-	yoAccount := firefly.GetAssetAccount(*accountName)
-	if yoAccount == nil {
-		fmt.Println("nahi mila")
-	} else {
-		fmt.Println(*yoAccount)
+	accountName := *ptrAccountName
+	ptrAssetAccount := firefly.GetAssetAccount(accountName)
+	if ptrAssetAccount == nil {
+		exitWithMessage("No account found with that name. Are you sure you want to audit \"" + accountName + "\"?")
 	}
 
+	assetAccount := *ptrAssetAccount
+	fmt.Println("================================================")
+	fmt.Println(assetAccount)
+	fmt.Println("================================================")
+	fmt.Println(transactions)
+	fmt.Println("================================================")
+
+	fireflyTransactions := firefly.FetchTransactions(assetAccount.Id)
+	fmt.Println(fireflyTransactions)
 }

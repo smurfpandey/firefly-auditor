@@ -3,9 +3,11 @@ package kotak
 import (
 	"fmt"
 	"log"
+	"time"
 	"os"
 
 	"github.com/gocarina/gocsv"
+	"github.com/smurfpandey/firefly-auditor/accounts"
 )
 
 type Transaction struct {
@@ -16,7 +18,7 @@ type Transaction struct {
 	Balance float32 `csv:"Balance"`
 }
 
-func ReadCSV(filePath string) interface{} {
+func ReadTransactions(filePath string) []accounts.Transaction {
 	transactions := []*Transaction{}
 
 	in, err := os.Open(filePath)
@@ -31,14 +33,18 @@ func ReadCSV(filePath string) interface{} {
 		log.Fatal("Error parsing csv to struct")
 	}
 
+	var outTransactions []accounts.Transaction
 	for _, transaction := range transactions {
-		if transaction.Type == "DR" {
-			fmt.Println("Gaya: ", transaction.Amount, "On: ", transaction.Date)
-		} else {
-			fmt.Println("Aaya: ", transaction.Amount, "On: ", transaction.Date)
+		transDate, _ := time.Parse("02/01/2006", transaction.Date)
+		outTransaction := accounts.Transaction{
+			Date: transDate,
+			Amount: transaction.Amount,
+			Type: transaction.Type,
+			Balance: transaction.Balance,
 		}
 
+		outTransactions = append(outTransactions, outTransaction)
 	}
 
-	return transactions
+	return outTransactions
 }

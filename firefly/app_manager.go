@@ -1,9 +1,6 @@
 package firefly
 
 import (
-	// "fmt"
-	// "io/ioutil"
-
 	"github.com/imroc/req"
 )
 
@@ -17,8 +14,28 @@ type Account struct {
 	} `json:"attributes"`
 }
 
+type Transaction struct {
+	Type        string `json:"type"`
+	Date 		string `json:"date"`
+	Currency 	string `json:"currency_code"`
+	Amount 		float32 `json:"amount,string"`
+	SourceType  string `json:"source_type"`
+}
+
+type ParentTransaction struct {
+	Id         string `json:"id"`
+	Attributes struct {
+		CreatedOn    string  `json:"name"`
+		UpdateOn     string  `json:"type"`
+		Transactions []Transaction `json:"transactions"`
+	} `json:"attributes"`
+}
+
 type ListAccount struct {
 	Accounts []Account `json:"data"`
+}
+type ListTransaction struct {
+	ParentTransactions []ParentTransaction `json:"data"`
 }
 
 var (
@@ -37,16 +54,33 @@ func FetchAccountList() []Account {
 	reqUrl := API_BASE_URL + "accounts"
 
 	rawResp, _ := req.Get(reqUrl, authHeader, param)
-	// resp := rawResp.Response()
-
-	// bodyBytes, _ := ioutil.ReadAll(resp.Body)
-
-	// bodyString := string(bodyBytes)
 
 	var lstAccounts ListAccount
 	rawResp.ToJSON(&lstAccounts)
 
 	return lstAccounts.Accounts
+}
+
+func FetchTransactions(accountId string) []ParentTransaction {
+	authHeader := req.Header{
+		"Accept":        "application/json",
+		"Authorization": "Bearer " + ACCESS_TOKEN,
+	}
+	param := req.Param{
+		"type": "asset",
+	}
+
+	reqUrl := "transactions"
+	if accountId != "0" {
+		reqUrl = API_BASE_URL + "accounts/" + accountId + "/transactions"
+	}
+
+	rawResp, _ := req.Get(reqUrl, authHeader, param)
+
+	var lstTransactions ListTransaction
+	rawResp.ToJSON(&lstTransactions)
+
+	return lstTransactions.ParentTransactions
 }
 
 func GetAssetAccount(accountName string) *Account {
