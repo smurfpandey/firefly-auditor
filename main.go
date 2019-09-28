@@ -9,6 +9,8 @@ import (
 
 	"github.com/joho/godotenv"
 
+	"github.com/smurfpandey/firefly-auditor/accounts"
+	"github.com/smurfpandey/firefly-auditor/accounts/hdfc"
 	"github.com/smurfpandey/firefly-auditor/accounts/kotak"
 	"github.com/smurfpandey/firefly-auditor/firefly"
 )
@@ -23,6 +25,17 @@ type Transaction struct {
 func exitWithMessage(message string) {
 	fmt.Println("Error:", message)
 	os.Exit(1)
+}
+
+func ReadTransactions(filePath string, accountName string) []accounts.Transaction {
+	switch accountName {
+	case "Kotak Mahindra Bank":
+		return kotak.ReadTransactions(filePath)
+	case "HDFC Bank":
+		return hdfc.ReadTransactions(filePath)
+	default:
+		return []accounts.Transaction{}
+	}
 }
 
 func main() {
@@ -41,9 +54,15 @@ func main() {
 	ptrAccountName := flag.String("account", "", "Name of asset account in Firefly")
 	flag.Parse()
 
-	// Read file with help of bank manager
+	accountName := *ptrAccountName
 	transactionFile := *ptrTransactionFile
-	bankTransactions := kotak.ReadTransactions(transactionFile)
+
+	// Read file with help of bank manager
+	bankTransactions := ReadTransactions(transactionFile, accountName)
+
+	if len(bankTransactions) == 0 {
+		exitWithMessage("No transactions found in CSV file")
+	}
 
 	sort.Slice(bankTransactions, func(i, j int) bool {
 		return bankTransactions[i].Date.Before(bankTransactions[j].Date)
@@ -52,7 +71,6 @@ func main() {
 	firstTransactionOn := bankTransactions[0].Date
 	lastTransactionOn := bankTransactions[len(bankTransactions)-1].Date
 
-	accountName := *ptrAccountName
 	ptrAssetAccount := firefly.GetAssetAccount(accountName)
 	if ptrAssetAccount == nil {
 		exitWithMessage("No account found with that name. Are you sure you want to audit \"" + accountName + "\"?")
