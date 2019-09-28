@@ -5,8 +5,9 @@ import (
 )
 
 type Transaction struct {
-	Date    time.Time
-	Amount  float32
-	Type    string
-	Balance float32
+	Date        time.Time
+	Description string
+	Amount      float32
+	Type        string
+	Balance     float32
 }

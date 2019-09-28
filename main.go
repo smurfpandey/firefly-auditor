@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 
 	"github.com/joho/godotenv"
 
@@ -42,7 +43,14 @@ func main() {
 
 	// Read file with help of bank manager
 	transactionFile := *ptrTransactionFile
-	transactions := kotak.ReadTransactions(transactionFile)
+	bankTransactions := kotak.ReadTransactions(transactionFile)
+
+	sort.Slice(bankTransactions, func(i, j int) bool {
+		return bankTransactions[i].Date.Before(bankTransactions[j].Date)
+	})
+
+	firstTransactionOn := bankTransactions[0].Date
+	lastTransactionOn := bankTransactions[len(bankTransactions)-1].Date
 
 	accountName := *ptrAccountName
 	ptrAssetAccount := firefly.GetAssetAccount(accountName)
@@ -51,12 +59,28 @@ func main() {
 	}
 
 	assetAccount := *ptrAssetAccount
-	fmt.Println("================================================")
-	fmt.Println(assetAccount)
-	fmt.Println("================================================")
-	fmt.Println(transactions)
-	fmt.Println("================================================")
+	fireflyTransactions := firefly.GetAllTransactions(assetAccount.Id, firstTransactionOn, lastTransactionOn)
+	sort.Slice(fireflyTransactions, func(i, j int) bool {
+		return fireflyTransactions[i].Attributes.Transactions[0].Date.Before(fireflyTransactions[j].Attributes.Transactions[0].Date)
+	})
 
-	fireflyTransactions := firefly.FetchTransactions(assetAccount.Id)
-	fmt.Println(fireflyTransactions)
+	for bankTIdx := range bankTransactions {
+		didILogIt := false
+		bankTransDate := bankTransactions[bankTIdx].Date.Format("2016-01-02")
+		for fireflyTIdx := range fireflyTransactions {
+			fireflyTransDate := fireflyTransactions[fireflyTIdx].Attributes.Transactions[0].Date.Format("2016-01-02")
+			if bankTransDate == fireflyTransDate {
+				if bankTransactions[bankTIdx].Amount == fireflyTransactions[fireflyTIdx].Attributes.Transactions[0].Amount {
+					didILogIt = true
+					break
+				}
+			}
+		}
+
+		if didILogIt {
+			//fmt.Println("Yes!")
+		} else {
+			fmt.Println("Transaction not logged in Firefly! :(", bankTransactions[bankTIdx])
+		}
+	}
 }
