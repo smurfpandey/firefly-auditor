@@ -8,6 +8,7 @@ import (
 	"sort"
 
 	"github.com/joho/godotenv"
+	"github.com/olekukonko/tablewriter"
 
 	"github.com/smurfpandey/firefly-auditor/accounts"
 	"github.com/smurfpandey/firefly-auditor/accounts/hdfc"
@@ -82,6 +83,9 @@ func main() {
 		return fireflyTransactions[i].Attributes.Transactions[0].Date.Before(fireflyTransactions[j].Attributes.Transactions[0].Date)
 	})
 
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Date", "Description", "Amount", "CR/DR"})
+
 	for bankTIdx := range bankTransactions {
 		didILogIt := false
 		bankTransDate := bankTransactions[bankTIdx].Date.Format("2016-01-02")
@@ -98,7 +102,11 @@ func main() {
 		if didILogIt {
 			//fmt.Println("Yes!")
 		} else {
-			fmt.Println("Transaction not logged in Firefly! :(", bankTransactions[bankTIdx])
+			yoRow := []string{bankTransDate, bankTransactions[bankTIdx].Description, fmt.Sprintf("%f", bankTransactions[bankTIdx].Amount), bankTransactions[bankTIdx].Type}
+			table.Append(yoRow)
 		}
 	}
+
+	table.Render()
 }
+1
