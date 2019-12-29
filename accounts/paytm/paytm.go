@@ -1,4 +1,4 @@
-package hdfc
+package paytm
 
 import (
 	"fmt"
@@ -16,11 +16,12 @@ import (
 
 type Transaction struct {
 	Date         string  `csv:"Date"`
-	Description  string  `csv:"Narration"`
-	CreditAmount float32 `csv:"Credit Amount"`
-	DebitAmount  float32 `csv:"Debit Amount"`
-	Balance      float32 `csv:"Closing Balance"`
+	Description  string  `csv:"Source/Destination"`
+	CreditAmount float32 `csv:"Credit"`
+	DebitAmount  float32 `csv:"Debit"`
 }
+
+const DATE_FORMAT = "02/01/2006 15:04:05"
 
 func ReadTransactions(filePath string) []accounts.Transaction {
 	transactions := []*Transaction{}
@@ -39,7 +40,7 @@ func ReadTransactions(filePath string) []accounts.Transaction {
 
 	var outTransactions []accounts.Transaction
 	for _, transaction := range transactions {
-		transDate, err := time.Parse("02/01/06", strings.TrimSpace(transaction.Date))
+		transDate, err := time.Parse(DATE_FORMAT, strings.TrimSpace(transaction.Date))
 		if err != nil {
 			log.Fatal("Error parsing date ", err)
 		}
@@ -57,7 +58,7 @@ func ReadTransactions(filePath string) []accounts.Transaction {
 			Date: transDate,
 			Amount: transAmount,
 			Type: transType,
-			Balance: transaction.Balance,
+			Balance: 0,
 			Description: strings.TrimSpace(transaction.Description),
 		}
 
@@ -68,7 +69,7 @@ func ReadTransactions(filePath string) []accounts.Transaction {
 }
 
 func ListFiles() []utils.TransactionFile {
-	BASE_FOLDER_PATH := os.Getenv("HDFC_FOLDER_BASE_PATH")
+	BASE_FOLDER_PATH := os.Getenv("PAYTM_FOLDER_BASE_PATH")
 
 	files, err := ioutil.ReadDir(BASE_FOLDER_PATH)
 

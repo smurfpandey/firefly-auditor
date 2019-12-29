@@ -55,7 +55,7 @@ var (
 	API_BASE_URL string
 )
 
-func FetchAccountList() []Account {
+func GetAllAssetAccounts() []Account {
 	authHeader := req.Header{
 		"Accept":        "application/json",
 		"Authorization": "Bearer " + ACCESS_TOKEN,
@@ -99,7 +99,7 @@ func FetchTransactions(accountId string, pageNumber int, start string, end strin
 }
 
 func GetAssetAccount(accountName string) *Account {
-	lstAccounts := FetchAccountList()
+	lstAccounts := GetAllAssetAccounts()
 
 	for i := range lstAccounts {
 		// fmt.Println("Account: ", lstAccounts[i].Attributes.Name)
