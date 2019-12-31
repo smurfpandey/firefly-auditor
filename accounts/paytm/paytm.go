@@ -5,13 +5,10 @@ import (
 	"log"
 	"time"
 	"strings"
-	"sort"
 	"os"
-	"io/ioutil"
 
 	"github.com/gocarina/gocsv"
 	"github.com/smurfpandey/firefly-auditor/accounts"
-	"github.com/smurfpandey/firefly-auditor/utils"
 )
 
 type Transaction struct {
@@ -22,6 +19,10 @@ type Transaction struct {
 }
 
 const DATE_FORMAT = "02/01/2006 15:04:05"
+func BASE_FOLDER_PATH() string {
+	return os.Getenv("PAYTM_FOLDER_BASE_PATH")
+}
+
 
 func ReadTransactions(filePath string) []accounts.Transaction {
 	transactions := []*Transaction{}
@@ -66,33 +67,4 @@ func ReadTransactions(filePath string) []accounts.Transaction {
 	}
 
 	return outTransactions
-}
-
-func ListFiles() []utils.TransactionFile {
-	BASE_FOLDER_PATH := os.Getenv("PAYTM_FOLDER_BASE_PATH")
-
-	files, err := ioutil.ReadDir(BASE_FOLDER_PATH)
-
-	if err != nil {
-		return []utils.TransactionFile{}
-	}
-
-	// TODO: handle the error!
-	sort.Slice(files, func(i,j int) bool{
-		return files[i].ModTime().After(files[j].ModTime())
-	})
-
-	var lstTransactions []utils.TransactionFile
-
-	for _, file := range files {
-		transFile := utils.TransactionFile{
-			Name:             file.Name(),
-			Path:             BASE_FOLDER_PATH + file.Name(),
-			LastModifiedTime: file.ModTime(),
-		}
-
-		lstTransactions = append(lstTransactions, transFile)
-	}
-
-	return lstTransactions
 }

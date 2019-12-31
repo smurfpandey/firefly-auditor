@@ -5,13 +5,10 @@ import (
 	"log"
 	"time"
 	"strings"
-	"sort"
 	"os"
-	"io/ioutil"
 
 	"github.com/gocarina/gocsv"
 	"github.com/smurfpandey/firefly-auditor/accounts"
-	"github.com/smurfpandey/firefly-auditor/utils"
 )
 
 type Transaction struct {
@@ -20,6 +17,12 @@ type Transaction struct {
 	CreditAmount float32 `csv:"Credit Amount"`
 	DebitAmount  float32 `csv:"Debit Amount"`
 	Balance      float32 `csv:"Closing Balance"`
+}
+
+const DATE_FORMAT = "02/01/06"
+
+func BASE_FOLDER_PATH() string {
+	return os.Getenv("HDFC_FOLDER_BASE_PATH")
 }
 
 func ReadTransactions(filePath string) []accounts.Transaction {
@@ -39,7 +42,7 @@ func ReadTransactions(filePath string) []accounts.Transaction {
 
 	var outTransactions []accounts.Transaction
 	for _, transaction := range transactions {
-		transDate, err := time.Parse("02/01/06", strings.TrimSpace(transaction.Date))
+		transDate, err := time.Parse(DATE_FORMAT, strings.TrimSpace(transaction.Date))
 		if err != nil {
 			log.Fatal("Error parsing date ", err)
 		}
@@ -65,33 +68,4 @@ func ReadTransactions(filePath string) []accounts.Transaction {
 	}
 
 	return outTransactions
-}
-
-func ListFiles() []utils.TransactionFile {
-	BASE_FOLDER_PATH := os.Getenv("HDFC_FOLDER_BASE_PATH")
-
-	files, err := ioutil.ReadDir(BASE_FOLDER_PATH)
-
-	if err != nil {
-		return []utils.TransactionFile{}
-	}
-
-	// TODO: handle the error!
-	sort.Slice(files, func(i,j int) bool{
-		return files[i].ModTime().After(files[j].ModTime())
-	})
-
-	var lstTransactions []utils.TransactionFile
-
-	for _, file := range files {
-		transFile := utils.TransactionFile{
-			Name:             file.Name(),
-			Path:             BASE_FOLDER_PATH + file.Name(),
-			LastModifiedTime: file.ModTime(),
-		}
-
-		lstTransactions = append(lstTransactions, transFile)
-	}
-
-	return lstTransactions
 }

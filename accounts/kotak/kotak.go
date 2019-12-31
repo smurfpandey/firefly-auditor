@@ -19,8 +19,14 @@ type Transaction struct {
 	Balance     float32 `csv:"Balance"`
 }
 
+const DATE_FORMAT = "02/01/2006"
+func BASE_FOLDER_PATH() string {
+	return os.Getenv("KOTAK_FOLDER_BASE_PATH")
+}
+
+
 func ReadTransactions(filePath string) []accounts.Transaction {
-	transactions := []*Transaction{}
+	fileTransactions := []*Transaction{}
 
 	in, err := os.Open(filePath)
 	if err != nil {
@@ -29,14 +35,14 @@ func ReadTransactions(filePath string) []accounts.Transaction {
 
 	defer in.Close()
 
-	if err := gocsv.UnmarshalFile(in, &transactions); err != nil {
+	if err := gocsv.UnmarshalFile(in, &fileTransactions); err != nil {
 		fmt.Println(err)
 		log.Fatal("Error parsing csv to struct")
 	}
 
 	var outTransactions []accounts.Transaction
-	for _, transaction := range transactions {
-		transDate, _ := time.Parse("02/01/2006", transaction.Date)
+	for _, transaction := range fileTransactions {
+		transDate, _ := time.Parse(DATE_FORMAT, transaction.Date)
 		outTransaction := accounts.Transaction{
 			Date: transDate,
 			Amount: transaction.Amount,

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"sort"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/smurfpandey/firefly-auditor/accounts/hdfc"
 	"github.com/smurfpandey/firefly-auditor/accounts/kotak"
 	"github.com/smurfpandey/firefly-auditor/accounts/paytm"
+	"github.com/smurfpandey/firefly-auditor/accounts/sbi_cc"
 	"github.com/smurfpandey/firefly-auditor/firefly"
 	"github.com/smurfpandey/firefly-auditor/utils"
 )
@@ -23,6 +25,8 @@ func ReadTransactions(filePath string, accountName string) []accounts.Transactio
 		return hdfc.ReadTransactions(filePath)
 	case "Paytm Wallet":
 		return paytm.ReadTransactions(filePath)
+	case "SBI CC":
+		return sbi_cc.ReadTransactions(filePath)
 	default:
 		return []accounts.Transaction{}
 	}
@@ -31,13 +35,15 @@ func ReadTransactions(filePath string, accountName string) []accounts.Transactio
 func ListFiles(accountName string) []utils.TransactionFile {
 	switch accountName {
 	case "Kotak Mahindra Bank":
-		return []utils.TransactionFile{}
+		return utils.ListFiles(kotak.BASE_FOLDER_PATH())
 	case "HDFC Bank":
-		return hdfc.ListFiles()
+		return utils.ListFiles(hdfc.BASE_FOLDER_PATH())
 	case "Paytm Wallet":
-		return paytm.ListFiles()
+		return utils.ListFiles(paytm.BASE_FOLDER_PATH())
+	case "SBI CC":
+		return utils.ListFiles(sbi_cc.BASE_FOLDER_PATH())
 	default:
-		return []utils.TransactionFile{}
+		return nil
 	}
 }
 
@@ -110,7 +116,9 @@ func AuditTransactions(account firefly.Account) {
 		for fireflyTIdx := range fireflyTransactions {
 			fireflyTransDate := fireflyTransactions[fireflyTIdx].Attributes.Transactions[0].Date.Format("02-01-2006")
 			if bankTransDate == fireflyTransDate {
-				if bankTransactions[bankTIdx].Amount == fireflyTransactions[fireflyTIdx].Attributes.Transactions[0].Amount {
+				bankAmount := math.Round(float64(bankTransactions[bankTIdx].Amount))
+				fireflyAmount := math.Round(float64(fireflyTransactions[fireflyTIdx].Attributes.Transactions[0].Amount))
+				if bankAmount == fireflyAmount {
 					didILogIt = true
 					break
 				}
