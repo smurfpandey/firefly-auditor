@@ -14,3 +14,6 @@ firefly-auditor
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# node_modules
+node_modules
