@@ -128,7 +128,7 @@ func AuditTransactions(account firefly.Account) {
 		if didILogIt {
 			//fmt.Println("Yes!")
 		} else {
-			yoRow := []string{bankTransDate, bankTransactions[bankTIdx].Description, fmt.Sprintf("%f", bankTransactions[bankTIdx].Amount), bankTransactions[bankTIdx].Type}
+			yoRow := []string{bankTransDate, bankTransactions[bankTIdx].Description, fmt.Sprintf("%.2f", bankTransactions[bankTIdx].Amount), bankTransactions[bankTIdx].Type}
 			table.Append(yoRow)
 		}
 	}
