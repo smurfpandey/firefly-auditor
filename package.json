@@ -9,7 +9,7 @@
   "author": "Neeraj Verma",
   "license": "MIT",
   "dependencies": {
-    "minimist": "^1.2.0",
+    "minimist": "^1.2.2",
     "moment": "^2.24.0",
     "pdfreader": "^1.0.6"
   }
