@@ -10,7 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "minimist": "^1.2.3",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "pdfreader": "^1.0.6"
   }
 }
